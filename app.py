@@ -12,9 +12,9 @@ from functools import wraps
 app = Flask(__name__)
 app.secret_key = "spark-secret-key-change-in-production"
 
-# ─────────────────────────────────────────
+
 #  DATA STORAGE  (JSON flat-file database)
-# ─────────────────────────────────────────
+
 
 DATA_DIR      = "data"
 USERS_FILE    = os.path.join(DATA_DIR, "users.json")
@@ -47,9 +47,9 @@ def convo_key(a, b):
     return "::".join(sorted([a, b]))
 
 
-# ─────────────────────────────────────────
-#  SEED DEFAULT USERS
-# ─────────────────────────────────────────
+
+#   SEED DEFAULT USERS
+
 
 def seed_data():
     users = get_users()
@@ -78,9 +78,7 @@ def seed_data():
 seed_data()
 
 
-# ─────────────────────────────────────────
 #  AUTH DECORATOR
-# ─────────────────────────────────────────
 
 def login_required(f):
     @wraps(f)
@@ -91,9 +89,7 @@ def login_required(f):
     return wrapper
 
 
-# ─────────────────────────────────────────
-#  ROUTES — AUTH
-# ─────────────────────────────────────────
+#  ROUTES — AUTh
 
 @app.route("/")
 def index():
@@ -153,9 +149,8 @@ def logout():
     return redirect(url_for("index"))
 
 
-# ─────────────────────────────────────────
 #  ROUTES — MAIN APP
-# ─────────────────────────────────────────
+
 
 @app.route("/chat")
 @login_required
@@ -187,9 +182,7 @@ def chat():
     return render_template("chat.html", me=me, convos=convos)
 
 
-# ─────────────────────────────────────────
 #  API — MESSAGES
-# ─────────────────────────────────────────
 
 @app.route("/api/messages/<other_username>")
 @login_required
@@ -264,9 +257,7 @@ def react():
     return jsonify({"ok": True})
 
 
-# ─────────────────────────────────────────
 #  API — USERS / SEARCH
-# ─────────────────────────────────────────
 
 @app.route("/api/search")
 @login_required
@@ -315,9 +306,7 @@ def poll_messages(other_username):
     return jsonify({"messages": new_msgs})
 
 
-# ─────────────────────────────────────────
 #  RUN
-# ─────────────────────────────────────────
 
 if __name__ == "__main__":
     print("\n  spark. chat app")

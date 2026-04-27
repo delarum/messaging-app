@@ -10,13 +10,135 @@
       "from": "luna_dev",
       "to": "alex_vibes",
       "text": "omg this is so cool!",
-      "time": 1777264245.8553526
+      "time": 1777264245.8553526,
+      "read": true
     },
     {
       "from": "alex_vibes",
       "to": "luna_dev",
       "text": "right? search for anyone and just start chatting",
       "time": 1777264345.855353
+    },
+    {
+      "from": "alex_vibes",
+      "to": "luna_dev",
+      "text": "so innovative",
+      "time": 1777273443.9918437,
+      "read": false
+    }
+  ],
+  "johndoe::thearuuumm": [
+    {
+      "from": "johndoe",
+      "to": "thearuuumm",
+      "text": "hello",
+      "time": 1777271602.6618595,
+      "read": true
+    },
+    {
+      "from": "johndoe",
+      "to": "thearuuumm",
+      "text": "\ud83d\ude2d",
+      "time": 1777271648.1660445,
+      "read": true
+    },
+    {
+      "from": "thearuuumm",
+      "to": "johndoe",
+      "text": "hello john",
+      "time": 1777271725.6620018,
+      "read": true
+    }
+  ],
+  "janethedestroyerrr::thearuuumm": [
+    {
+      "from": "janethedestroyerrr",
+      "to": "thearuuumm",
+      "text": "hi there",
+      "time": 1777272129.2526815,
+      "read": true
+    },
+    {
+      "from": "thearuuumm",
+      "to": "janethedestroyerrr",
+      "text": "hi jane \ud83d\udc40",
+      "time": 1777273208.3032448,
+      "read": true
+    },
+    {
+      "from": "janethedestroyerrr",
+      "to": "thearuuumm",
+      "text": "\ud83d\udc40\ud83d\ude24",
+      "time": 1777273942.0027049,
+      "read": false
+    }
+  ],
+  "janethedestroyerrr::johndoe": [
+    {
+      "from": "janethedestroyerrr",
+      "to": "johndoe",
+      "text": "Del told me sth wanna hear",
+      "time": 1777272163.8314958,
+      "read": true
+    },
+    {
+      "from": "johndoe",
+      "to": "janethedestroyerrr",
+      "text": "yeah spill",
+      "time": 1777273072.0455225,
+      "read": false
+    }
+  ],
+  "alex_vibes::johndoe": [
+    {
+      "from": "johndoe",
+      "to": "alex_vibes",
+      "text": "hello",
+      "time": 1777273162.7250054,
+      "read": false
+    }
+  ],
+  "alex_vibes::janethedestroyerrr": [
+    {
+      "from": "janethedestroyerrr",
+      "to": "alex_vibes",
+      "text": "Hi Alex i need your help with sth yeah",
+      "time": 1777273323.5694892,
+      "read": false
+    }
+  ],
+  "alex_vibes::thearuuumm": [
+    {
+      "from": "alex_vibes",
+      "to": "thearuuumm",
+      "text": "Hello",
+      "time": 1777273416.661267,
+      "read": false
+    },
+    {
+      "from": "alex_vibes",
+      "to": "thearuuumm",
+      "text": "this is literally so brilliant",
+      "time": 1777273484.3715794,
+      "read": false
+    }
+  ],
+  "luna_dev::thearuuumm": [
+    {
+      "from": "luna_dev",
+      "to": "thearuuumm",
+      "text": "Hi you theres like this whole roumor going around hmu at a lunch \ud83d\udc85",
+      "time": 1777273611.0288033,
+      "read": false
+    }
+  ],
+  "neon_rose::thearuuumm": [
+    {
+      "from": "neon_rose",
+      "to": "thearuuumm",
+      "text": "yooooohhh",
+      "time": 1777273667.1801293,
+      "read": false
     }
   ]
 }

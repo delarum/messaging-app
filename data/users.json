@@ -28,5 +28,17 @@
     "name": "playfull",
     "avatar": "\ud83e\udd8b",
     "password": "arum"
+  },
+  "johndoe": {
+    "username": "johndoe",
+    "name": "john",
+    "avatar": "\ud83e\udd8b",
+    "password": "john"
+  },
+  "janethedestroyerrr": {
+    "username": "janethedestroyerrr",
+    "name": "jane",
+    "avatar": "\ud83d\udc3c",
+    "password": "jane"
   }
 }
