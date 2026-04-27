@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>spark. — Chat</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0a0a0f;--surface:#13131a;--surface2:#1c1c26;--border:#2a2a38;
+    --accent:#7c6dfa;--accent2:#fa6d9a;--accent3:#6dfac8;
+    --text:#f0f0f8;--text2:#8888aa;--text3:#55556a;--online:#3dffa0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);
+    height:100vh;overflow:hidden;display:flex;align-items:center;justify-content:center;
+  }
+  body::before{
+    content:'';position:fixed;inset:0;pointer-events:none;
+    background:
+      radial-gradient(ellipse 500px 400px at 0% 0%, rgba(124,109,250,0.08) 0%,transparent 60%),
+      radial-gradient(ellipse 400px 300px at 100% 100%, rgba(250,109,154,0.06) 0%,transparent 60%);
+  }
+
+  /* ── APP SHELL ── */
+  #app{
+    display:flex;width:960px;height:640px;
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:24px;overflow:hidden;
+    box-shadow:0 40px 80px rgba(0,0,0,0.5);position:relative;z-index:1;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar{
+    width:300px;flex-shrink:0;background:var(--bg);
+    border-right:1px solid var(--border);display:flex;flex-direction:column;
+  }
+  .sb-header{padding:20px;border-bottom:1px solid var(--border);}
+  .me-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+  .me-av{
+    width:42px;height:42px;border-radius:50%;font-size:22px;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--surface2);flex-shrink:0;position:relative;
+  }
+  .me-av::after{
+    content:'';position:absolute;width:10px;height:10px;border-radius:50%;
+    background:var(--online);bottom:1px;right:1px;border:2px solid var(--bg);
+  }
+  .me-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;}
+  .me-handle{font-size:12px;color:var(--text2);}
+  .logout-btn{
+    margin-left:auto;background:none;border:none;color:var(--text3);
+    cursor:pointer;font-size:18px;padding:4px;border-radius:6px;transition:color 0.2s;
+  }
+  .logout-btn:hover{color:var(--accent2);}
+
+  .search-wrap{position:relative;}
+  .search-wrap input{
+    width:100%;padding:10px 14px 10px 36px;background:var(--surface2);
+    border:1px solid var(--border);border-radius:10px;color:var(--text);
+    font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color 0.2s;
+  }
+  .search-wrap input:focus{border-color:var(--accent);}
+  .search-wrap input::placeholder{color:var(--text3);}
+  .si{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px;}
+  .search-results{
+    background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+    margin-top:6px;overflow:hidden;display:none;position:absolute;
+    width:100%;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,0.4);
+  }
+  .sr-item{
+    display:flex;align-items:center;gap:10px;padding:10px 14px;
+    cursor:pointer;transition:background 0.15s;
+  }
+  .sr-item:hover{background:var(--border);}
+  .sr-av{font-size:22px;width:36px;height:36px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;background:var(--bg);flex-shrink:0;}
+  .sr-name{font-size:14px;font-weight:500;}
+  .sr-handle{font-size:12px;color:var(--text2);}
+  .no-results{padding:12px 14px;font-size:13px;color:var(--text2);}
+
+  .sb-label{
+    padding:12px 20px 6px;font-size:11px;color:var(--text3);
+    letter-spacing:0.08em;text-transform:uppercase;
+  }
+  .convo-list{flex:1;overflow-y:auto;padding-bottom:8px;}
+  .convo-list::-webkit-scrollbar{width:0;}
+  .convo-item{
+    display:flex;align-items:center;gap:10px;
+    padding:10px 20px;cursor:pointer;transition:background 0.15s;
+  }
+  .convo-item:hover{background:var(--surface2);}
+  .convo-item.active{background:var(--surface2);}
+  .c-av{
+    width:46px;height:46px;border-radius:50%;font-size:24px;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--surface2);flex-shrink:0;position:relative;
+  }
+  .c-av .dot{
+    position:absolute;width:11px;height:11px;border-radius:50%;
+    background:var(--online);bottom:1px;right:1px;border:2px solid var(--bg);
+  }
+  .c-name{font-size:14px;font-weight:500;margin-bottom:2px;}
+  .c-prev{font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .c-meta{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
+  .c-time{font-size:11px;color:var(--text3);}
+  .badge{
+    background:var(--accent);color:#fff;font-size:10px;font-weight:700;
+    border-radius:50%;width:18px;height:18px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .empty-list{padding:28px 20px;text-align:center;color:var(--text2);}
+  .empty-list .ei{font-size:36px;margin-bottom:8px;}
+  .empty-list p{font-size:13px;line-height:1.5;}
+
+  /* ── CHAT AREA ── */
+  .chat-area{flex:1;display:flex;flex-direction:column;min-width:0;}
+  .chat-empty{
+    flex:1;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:10px;color:var(--text2);
+  }
+  .chat-empty .cel{
+    font-family:'Syne',sans-serif;font-size:52px;font-weight:800;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text; background-clip: text; -webkit-text-fill-color:transparent;
+  }
+  .chat-empty p{font-size:14px;}
+
+  #active-chat{display:none;flex-direction:column;flex:1;}
+
+  .ch-header{
+    padding:16px 20px;border-bottom:1px solid var(--border);
+    display:flex;align-items:center;gap:12px;
+  }
+  .ch-av{
+    width:40px;height:40px;border-radius:50%;font-size:20px;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--surface2);position:relative;flex-shrink:0;
+  }
+  .ch-av .dot{
+    position:absolute;width:10px;height:10px;border-radius:50%;
+    background:var(--online);bottom:1px;right:1px;border:2px solid var(--surface);
+  }
+  .ch-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;}
+  .ch-status{font-size:12px;color:var(--online);}
+  .info-btn{
+    margin-left:auto;background:none;border:none;color:var(--text2);
+    cursor:pointer;font-size:20px;padding:4px;transition:color 0.2s;
+  }
+  .info-btn:hover{color:var(--text);}
+
+  .chat-msgs{
+    flex:1;overflow-y:auto;padding:20px;
+    display:flex;flex-direction:column;gap:6px;
+  }
+  .chat-msgs::-webkit-scrollbar{width:4px;}
+  .chat-msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+  .msg-group{display:flex;flex-direction:column;gap:2px;}
+  .msg-group.out{align-items:flex-end;}
+  .msg-group.in{align-items:flex-start;}
+  .bubble{
+    max-width:65%;padding:10px 14px;border-radius:18px;
+    font-size:14px;line-height:1.45;word-break:break-word;
+    position:relative;animation:pop 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes pop{from{transform:scale(0.85);opacity:0;}to{transform:scale(1);opacity:1;}}
+  .msg-group.out .bubble{
+    background:linear-gradient(135deg,var(--accent),#5a4de0);
+    color:#fff;border-bottom-right-radius:5px;
+  }
+  .msg-group.in .bubble{
+    background:var(--surface2);border:1px solid var(--border);
+    color:var(--text);border-bottom-left-radius:5px;
+  }
+  .msg-time{font-size:10px;color:var(--text3);padding:0 4px;margin-top:2px;}
+  .date-div{
+    display:flex;align-items:center;gap:10px;
+    margin:12px 0;color:var(--text3);font-size:11px;
+  }
+  .date-div::before,.date-div::after{content:'';flex:1;height:1px;background:var(--border);}
+
+  .rxn-bar{
+    position:absolute;bottom:-26px;
+    background:var(--surface2);border:1px solid var(--border);
+    border-radius:20px;padding:2px 6px;display:flex;gap:2px;
+    opacity:0;transition:opacity 0.2s;z-index:10;pointer-events:none;
+  }
+  .msg-group.out .rxn-bar{right:0;}
+  .msg-group.in  .rxn-bar{left:0;}
+  .bubble:hover .rxn-bar{opacity:1;pointer-events:all;}
+  .rxn-btn{font-size:14px;cursor:pointer;padding:2px;border-radius:4px;transition:transform 0.15s;}
+  .rxn-btn:hover{transform:scale(1.3);}
+
+  .typing{
+    display:flex;gap:4px;padding:12px 14px;
+    background:var(--surface2);border:1px solid var(--border);
+    border-radius:18px;border-bottom-left-radius:5px;width:fit-content;
+  }
+  .td{
+    width:6px;height:6px;border-radius:50%;background:var(--text2);
+    animation:tb 1.2s infinite;
+  }
+  .td:nth-child(2){animation-delay:0.2s;}
+  .td:nth-child(3){animation-delay:0.4s;}
+  @keyframes tb{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-5px);}}
+
+  .input-area{
+    padding:16px 20px;border-top:1px solid var(--border);
+    display:flex;align-items:flex-end;gap:10px;
+  }
+  .emoji-btn,.attach-btn{
+    width:38px;height:38px;border-radius:50%;border:none;
+    background:var(--surface2);color:var(--text2);cursor:pointer;
+    font-size:18px;flex-shrink:0;transition:all 0.2s;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .emoji-btn:hover{background:var(--border);color:var(--text);}
+  #msg-input{
+    flex:1;padding:10px 14px;background:var(--surface2);
+    border:1px solid var(--border);border-radius:20px;color:var(--text);
+    font-family:'DM Sans',sans-serif;font-size:14px;outline:none;
+    resize:none;max-height:120px;transition:border-color 0.2s;line-height:1.4;
+  }
+  #msg-input:focus{border-color:var(--accent);}
+  #msg-input::placeholder{color:var(--text3);}
+  .send-btn{
+    width:38px;height:38px;border-radius:50%;border:none;cursor:pointer;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#fff;font-size:16px;flex-shrink:0;transition:all 0.2s;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .send-btn:hover{transform:scale(1.05);}
+  .send-btn:active{transform:scale(0.95);}
+
+  .emoji-picker{
+    position:absolute;bottom:72px;left:20px;
+    background:var(--surface2);border:1px solid var(--border);
+    border-radius:14px;padding:12px;display:none;
+    flex-wrap:wrap;gap:4px;width:240px;z-index:50;
+    box-shadow:0 8px 30px rgba(0,0,0,0.4);
+  }
+  .emoji-picker.open{display:flex;}
+  .ep-item{
+    font-size:22px;cursor:pointer;padding:4px;
+    border-radius:6px;transition:background 0.15s;
+  }
+  .ep-item:hover{background:var(--border);}
+
+  /* Profile popup */
+  .prof-popup{
+    position:absolute;top:68px;right:20px;
+    background:var(--surface2);border:1px solid var(--border);
+    border-radius:16px;padding:20px;width:210px;z-index:100;
+    box-shadow:0 8px 30px rgba(0,0,0,0.4);display:none;
+  }
+  .prof-popup.open{display:block;animation:fadeUp 0.2s;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+  .pp-av{font-size:48px;text-align:center;margin-bottom:8px;}
+  .pp-name{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;text-align:center;}
+  .pp-handle{font-size:12px;color:var(--text2);text-align:center;margin-bottom:12px;}
+  .pp-badge{
+    background:rgba(124,109,250,0.15);border:1px solid rgba(124,109,250,0.3);
+    border-radius:20px;padding:4px 12px;font-size:12px;color:var(--accent);
+    display:block;width:fit-content;margin:0 auto;
+  }
+
+  /* Toast */
+  .toast{
+    position:fixed;bottom:28px;left:50%;
+    transform:translateX(-50%) translateY(16px);
+    background:var(--surface2);border:1px solid var(--border);
+    border-radius:10px;padding:10px 18px;font-size:13px;
+    opacity:0;transition:all 0.3s;z-index:999;pointer-events:none;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<div id="app">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-header">
+      <div class="me-row">
+        <div class="me-av" id="me-av">{{ me.avatar }}</div>
+        <div>
+          <div class="me-name">{{ me.name }}</div>
+          <div class="me-handle">@{{ me.username }}</div>
+        </div>
+        <a href="/logout" class="logout-btn" title="Sign out">⏻</a>
+      </div>
+      <div class="search-wrap" style="position:relative">
+        <span class="si">⌕</span>
+        <input type="text" id="search-in" placeholder="search users..."
+               autocomplete="off" oninput="doSearch(this.value)">
+        <div class="search-results" id="search-res"></div>
+      </div>
+    </div>
+
+    <div class="sb-label">Messages</div>
+
+    <div class="convo-list" id="convo-list">
+      {% if convos %}
+        {% for c in convos %}
+        <div class="convo-item {% if loop.first %}{% endif %}"
+             id="ci-{{ c.other.username }}"
+             onclick="openConvo('{{ c.other.username }}')">
+          <div class="c-av">{{ c.other.avatar }}<div class="dot"></div></div>
+          <div style="flex:1;min-width:0">
+            <div class="c-name">{{ c.other.name }}</div>
+            <div class="c-prev">
+              {% if c.last_msg %}{{ c.last_msg.text[:40] }}{% if c.last_msg.text|length > 40 %}…{% endif %}
+              {% else %}Start chatting!{% endif %}
+            </div>
+          </div>
+          <div class="c-meta">
+            {% if c.last_msg %}
+            <div class="c-time">{{ c.last_msg.time|int }}</div>
+            {% endif %}
+            {% if c.unread > 0 %}<div class="badge">{{ c.unread }}</div>{% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-list">
+          <div class="ei">💬</div>
+          <p>No messages yet.<br>Search for someone to chat!</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- CHAT AREA -->
+  <div class="chat-area" style="position:relative">
+    <div class="chat-empty" id="chat-empty">
+      <div class="cel">spark.</div>
+      <p>Search for someone to start a conversation</p>
+    </div>
+
+    <div id="active-chat">
+      <div class="ch-header">
+        <div class="ch-av" id="ch-av"><div class="dot"></div></div>
+        <div>
+          <div class="ch-name" id="ch-name"></div>
+          <div class="ch-status">online</div>
+        </div>
+        <button class="info-btn" onclick="toggleProf()">ⓘ</button>
+      </div>
+
+      <div class="chat-msgs" id="chat-msgs"></div>
+
+      <div class="emoji-picker" id="ep"></div>
+
+      <div class="input-area" style="position:relative">
+        <button class="emoji-btn" onclick="toggleEp()">😊</button>
+        <textarea id="msg-input" rows="1" placeholder="Message..."
+          oninput="autoH(this)" onkeydown="onKey(event)"></textarea>
+        <button class="send-btn" onclick="sendMsg()">➤</button>
+      </div>
+    </div>
+
+    <!-- Profile popup -->
+    <div class="prof-popup" id="prof-popup">
+      <div class="pp-av" id="pp-av"></div>
+      <div class="pp-name" id="pp-name"></div>
+      <div class="pp-handle" id="pp-handle"></div>
+      <div class="pp-badge">spark. member</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const ME = "{{ me.username }}";
+const EMOJIS = ['😂','😍','🔥','❤️','😭','✨','💀','🥹','😤','🤯','👀','💅','🫶','🙌','😎',
+                '🥲','💫','🤌','👏','🫠','💯','😩','🤝','🫡','😏'];
+
+let activeUser  = null;
+let lastMsgTime = 0;
+let pollTimer   = null;
+let profOpen    = false;
+
+// ── Build emoji picker ──
+const ep = document.getElementById('ep');
+EMOJIS.forEach(e => {
+  const s = document.createElement('span');
+  s.className = 'ep-item'; s.textContent = e;
+  s.onclick = () => { document.getElementById('msg-input').value += e; ep.classList.remove('open'); };
+  ep.appendChild(s);
+});
+
+// ── Format timestamps on sidebar ──
+document.querySelectorAll('.c-time').forEach(el => {
+  const ts = parseFloat(el.textContent) * 1000;
+  el.textContent = timeAgo(ts);
+});
+
+// ════════════════════════════════
+//  SEARCH
+// ════════════════════════════════
+let searchTimer = null;
+function doSearch(q) {
+  clearTimeout(searchTimer);
+  const res = document.getElementById('search-res');
+  if (!q.trim()) { res.style.display = 'none'; return; }
+  searchTimer = setTimeout(async () => {
+    const data = await fetch(`/api/search?q=${encodeURIComponent(q)}`).then(r => r.json());
+    if (!data.length) {
+      res.style.display = 'block';
+      res.innerHTML = `<div class="no-results">No users found for "${esc(q)}"</div>`;
+      return;
+    }
+    res.style.display = 'block';
+    res.innerHTML = data.map(u => `
+      <div class="sr-item" onclick="startWith('${u.username}')">
+        <div class="sr-av">${u.avatar}</div>
+        <div><div class="sr-name">${esc(u.name)}</div><div class="sr-handle">@${u.username}</div></div>
+      </div>
+    `).join('');
+  }, 250);
+}
+
+function hideSearch() {
+  document.getElementById('search-res').style.display = 'none';
+  document.getElementById('search-in').value = '';
+}
+
+function startWith(username) {
+  hideSearch(); openConvo(username);
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-wrap')) hideSearch();
+  if (!e.target.closest('.info-btn') && !e.target.closest('.prof-popup')) {
+    document.getElementById('prof-popup').classList.remove('open'); profOpen = false;
+  }
+  if (!e.target.closest('.emoji-btn') && !e.target.closest('.emoji-picker')) {
+    document.getElementById('ep').classList.remove('open');
+  }
+});
+
+// ════════════════════════════════
+//  OPEN CONVERSATION
+// ════════════════════════════════
+async function openConvo(username) {
+  if (pollTimer) clearInterval(pollTimer);
+  activeUser = username;
+
+  // Update sidebar active state
+  document.querySelectorAll('.convo-item').forEach(el => el.classList.remove('active'));
+  const ci = document.getElementById('ci-' + username);
+  if (ci) ci.classList.add('active');
+
+  // Fetch messages + user info
+  const data = await fetch(`/api/messages/${username}`).then(r => r.json());
+  if (data.error) { showToast(data.error); return; }
+
+  const other = data.other;
+  lastMsgTime = data.messages.length ? data.messages[data.messages.length - 1].time : 0;
+
+  // Set header
+  document.getElementById('ch-av').childNodes[0].textContent = other.avatar;
+  document.getElementById('ch-av').childNodes[0].nodeType === 3
+    ? (document.getElementById('ch-av').firstChild.textContent = other.avatar)
+    : null;
+
+  // Simpler avatar set
+  const chAv = document.getElementById('ch-av');
+  chAv.innerHTML = other.avatar + '<div class="dot"></div>';
+  document.getElementById('ch-name').textContent = other.name;
+
+  // Profile popup
+  document.getElementById('pp-av').textContent   = other.avatar;
+  document.getElementById('pp-name').textContent  = other.name;
+  document.getElementById('pp-handle').textContent = '@' + other.username;
+
+  document.getElementById('chat-empty').style.display = 'none';
+  document.getElementById('active-chat').style.display = 'flex';
+
+  renderMsgs(data.messages);
+  document.getElementById('msg-input').focus();
+
+  // Remove unread badge in sidebar
+  if (ci) { const b = ci.querySelector('.badge'); if(b) b.remove(); }
+
+  // Start polling for new messages every 2 seconds
+  pollTimer = setInterval(pollNew, 2000);
+}
+
+// ════════════════════════════════
+//  RENDER MESSAGES
+// ════════════════════════════════
+function renderMsgs(msgs) {
+  const c = document.getElementById('chat-msgs');
+  if (!msgs.length) {
+    c.innerHTML = `<div style="text-align:center;color:var(--text2);font-size:13px;margin:auto">Say hello! 👋</div>`;
+    return;
+  }
+
+  let html = ''; let lastDate = ''; let lastFrom = '';
+
+  msgs.forEach((m, i) => {
+    const isOut = m.from === ME;
+    const d     = new Date(m.time * 1000);
+    const ds    = d.toDateString();
+
+    if (ds !== lastDate) {
+      if (lastFrom) html += '</div>';
+      html += `<div class="date-div">${fmtDate(d)}</div>`;
+      lastDate = ds; lastFrom = '';
+    }
+
+    if (m.from !== lastFrom) {
+      if (lastFrom) html += '</div>';
+      html += `<div class="msg-group ${isOut ? 'out' : 'in'}">`;
+      lastFrom = m.from;
+    }
+
+    const rxns = ['❤️','😂','🔥','😮','👏'].map((e,j) =>
+      `<span class="rxn-btn" onclick="reactTo(${i},'${e}')">${e}</span>`
+    ).join('');
+
+    html += `
+      <div class="bubble" data-idx="${i}">
+        ${esc(m.text)}
+        ${m.reaction ? `<span style="position:absolute;bottom:-8px;${isOut?'right':'left'}:6px;font-size:16px">${m.reaction}</span>` : ''}
+        <div class="rxn-bar">${rxns}</div>
+      </div>
+      <div class="msg-time">${fmtTime(d)}</div>
+    `;
+  });
+
+  if (lastFrom) html += '</div>';
+  c.innerHTML = html;
+  c.scrollTop = c.scrollHeight;
+}
+
+// ════════════════════════════════
+//  SEND MESSAGE
+// ════════════════════════════════
+async function sendMsg() {
+  if (!activeUser) return;
+  const input = document.getElementById('msg-input');
+  const text  = input.value.trim();
+  if (!text) return;
+
+  input.value = ''; input.style.height = 'auto';
+
+  const data = await fetch(`/api/messages/${activeUser}`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ text })
+  }).then(r => r.json());
+
+  if (data.error) { showToast(data.error); return; }
+  lastMsgTime = data.message.time;
+  await refreshMsgs();
+  refreshSidebar();
+}
+
+function onKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); } }
+
+// ════════════════════════════════
+//  POLL FOR NEW MESSAGES
+// ════════════════════════════════
+async function pollNew() {
+  if (!activeUser) return;
+  const data = await fetch(`/api/poll/${activeUser}?since=${lastMsgTime}`).then(r => r.json());
+  if (data.messages && data.messages.length) {
+    lastMsgTime = data.messages[data.messages.length - 1].time;
+    await refreshMsgs();
+    refreshSidebar();
+  }
+}
+
+async function refreshMsgs() {
+  const data = await fetch(`/api/messages/${activeUser}`).then(r => r.json());
+  if (!data.error) renderMsgs(data.messages);
+}
+
+// ════════════════════════════════
+//  REFRESH SIDEBAR
+// ════════════════════════════════
+async function refreshSidebar() {
+  // Lightweight: just reload the convo list via a full page AJAX fetch isn't ideal;
+  // we'll update just the preview of the active convo
+  const data = await fetch(`/api/messages/${activeUser}`).then(r => r.json());
+  if (data.error) return;
+  const ci = document.getElementById('ci-' + activeUser);
+  if (ci) {
+    const msgs = data.messages;
+    const last = msgs[msgs.length - 1];
+    if (last) {
+      const prev = ci.querySelector('.c-prev');
+      if (prev) prev.textContent = last.text.slice(0, 40) + (last.text.length > 40 ? '…' : '');
+      const time = ci.querySelector('.c-time');
+      if (time) time.textContent = timeAgo(last.time * 1000);
+    }
+  } else {
+    // New conversation — reload page to add it to sidebar
+    if (data.messages.length === 1) location.reload();
+  }
+}
+
+// ════════════════════════════════
+//  REACTIONS
+// ════════════════════════════════
+async function reactTo(idx, emoji) {
+  if (!activeUser) return;
+  await fetch('/api/react', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ other: activeUser, idx, emoji })
+  });
+  await refreshMsgs();
+}
+
+// ════════════════════════════════
+//  UTILITIES
+// ════════════════════════════════
+function toggleEp()   { document.getElementById('ep').classList.toggle('open'); }
+function toggleProf() { profOpen = !profOpen; document.getElementById('prof-popup').classList.toggle('open', profOpen); }
+function autoH(el)    { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 120) + 'px'; }
+function esc(s)       { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+function timeAgo(ts) {
+  const d = Date.now() - ts;
+  if (d < 60000)    return 'now';
+  if (d < 3600000)  return Math.floor(d/60000) + 'm';
+  if (d < 86400000) return Math.floor(d/3600000) + 'h';
+  return Math.floor(d/86400000) + 'd';
+}
+function fmtTime(d)  { return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }
+function fmtDate(d)  {
+  const t = new Date(); const y = new Date(t); y.setDate(t.getDate()-1);
+  if (d.toDateString()===t.toDateString()) return 'Today';
+  if (d.toDateString()===y.toDateString()) return 'Yesterday';
+  return d.toLocaleDateString([],{month:'short',day:'numeric'});
+}
+</script>
+</body>
+</html>

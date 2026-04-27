@@ -1,0 +1,22 @@
+{
+  "alex_vibes::luna_dev": [
+    {
+      "from": "alex_vibes",
+      "to": "luna_dev",
+      "text": "hey! welcome to spark \ud83c\udf89",
+      "time": 1777264145.855348
+    },
+    {
+      "from": "luna_dev",
+      "to": "alex_vibes",
+      "text": "omg this is so cool!",
+      "time": 1777264245.8553526
+    },
+    {
+      "from": "alex_vibes",
+      "to": "luna_dev",
+      "text": "right? search for anyone and just start chatting",
+      "time": 1777264345.855353
+    }
+  ]
+}

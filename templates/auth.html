@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>spark. — Sign in</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f; --surface: #13131a; --surface2: #1c1c26;
+    --border: #2a2a38; --accent: #7c6dfa; --accent2: #fa6d9a;
+    --text: #f0f0f8; --text2: #8888aa; --text3: #55556a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif; background: var(--bg);
+    color: var(--text); min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 600px 400px at 0% 0%, rgba(124,109,250,0.1) 0%, transparent 60%),
+      radial-gradient(ellipse 400px 400px at 100% 100%, rgba(250,109,154,0.07) 0%, transparent 60%);
+  }
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 24px; padding: 40px; width: 380px;
+    position: relative; z-index: 1;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+  }
+  .logo {
+    font-family: 'Syne', sans-serif; font-size: 34px; font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 4px;
+  }
+  .tagline { color: var(--text2); font-size: 13px; margin-bottom: 32px; }
+  .tabs {
+    display: flex; gap: 4px; background: var(--bg);
+    border-radius: 10px; padding: 4px; margin-bottom: 28px;
+  }
+  .tab {
+    flex: 1; padding: 9px; border: none; border-radius: 8px;
+    background: transparent; color: var(--text2);
+    font-family: 'DM Sans', sans-serif; font-size: 14px; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab.active { background: var(--surface2); color: var(--text); font-weight: 500; }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 11px; color: var(--text2); margin-bottom: 6px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .field input {
+    width: 100%; padding: 12px 14px; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 10px;
+    color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px;
+    outline: none; transition: border-color 0.2s;
+  }
+  .field input:focus { border-color: var(--accent); }
+  .field input::placeholder { color: var(--text3); }
+  .avatar-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .av {
+    width: 42px; height: 42px; border-radius: 50%;
+    border: 2px solid transparent; cursor: pointer; font-size: 20px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg); transition: all 0.2s;
+  }
+  .av:hover { transform: scale(1.1); }
+  .av.sel { border-color: var(--accent); box-shadow: 0 0 12px rgba(124,109,250,0.35); }
+  .av-label { display: block; font-size: 11px; color: var(--text2); margin-bottom: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .btn {
+    width: 100%; padding: 13px; background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none; border-radius: 10px; color: #fff;
+    font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; margin-top: 6px;
+  }
+  .btn:hover { opacity: 0.88; transform: translateY(-1px); }
+  .error {
+    background: rgba(250,109,154,0.1); border: 1px solid rgba(250,109,154,0.3);
+    border-radius: 8px; padding: 10px 14px; color: var(--accent2);
+    font-size: 13px; margin-bottom: 14px; display: none;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">spark.</div>
+  <div class="tagline">Connect. Message. Vibe.</div>
+
+  <div class="tabs">
+    <button class="tab active" id="tab-login"  onclick="switchTab('login')">Sign in</button>
+    <button class="tab"        id="tab-signup" onclick="switchTab('signup')">Create account</button>
+  </div>
+
+  <div id="error-box" class="error"></div>
+
+  <!-- LOGIN -->
+  <div id="login-form">
+    <div class="field"><label>Username</label><input id="l-user" type="text" placeholder="your username" autocomplete="off"></div>
+    <div class="field"><label>Password</label><input id="l-pass" type="password" placeholder="••••••••"></div>
+    <button class="btn" onclick="doLogin()">Sign in →</button>
+  </div>
+
+  <!-- SIGNUP -->
+  <div id="signup-form" style="display:none">
+    <div class="field"><label>Display Name</label><input id="s-name" type="text" placeholder="How people see you" autocomplete="off"></div>
+    <div class="field"><label>Username</label><input id="s-user" type="text" placeholder="unique handle" autocomplete="off"></div>
+    <div class="field"><label>Password</label><input id="s-pass" type="password" placeholder="at least 4 characters"></div>
+    <span class="av-label">Pick your vibe</span>
+    <div class="avatar-row" id="av-grid"></div>
+    <button class="btn" onclick="doSignup()">Create account →</button>
+  </div>
+</div>
+
+<script>
+const AVATARS = ['🦊','🐼','🦋','🌙','🚀','🌸','🐉','🦁','🎭','🌊','🔥','⚡','🍀','🎨','🎸'];
+let selectedAv = AVATARS[0];
+
+// Build avatar grid
+const grid = document.getElementById('av-grid');
+AVATARS.forEach((a, i) => {
+  const d = document.createElement('div');
+  d.className = 'av' + (i === 0 ? ' sel' : '');
+  d.textContent = a;
+  d.onclick = () => {
+    document.querySelectorAll('.av').forEach(x => x.classList.remove('sel'));
+    d.classList.add('sel'); selectedAv = a;
+  };
+  grid.appendChild(d);
+});
+
+function switchTab(tab) {
+  document.getElementById('tab-login').classList.toggle('active',  tab === 'login');
+  document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+  document.getElementById('login-form').style.display  = tab === 'login'  ? 'block' : 'none';
+  document.getElementById('signup-form').style.display = tab === 'signup' ? 'block' : 'none';
+  hideErr();
+}
+
+function showErr(msg) {
+  const el = document.getElementById('error-box');
+  el.textContent = msg; el.style.display = 'block';
+}
+function hideErr() { document.getElementById('error-box').style.display = 'none'; }
+
+async function doLogin() {
+  hideErr();
+  const body = { username: document.getElementById('l-user').value, password: document.getElementById('l-pass').value };
+  const res  = await fetch('/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  const data = await res.json();
+  if (data.error) { showErr(data.error); return; }
+  window.location = data.redirect;
+}
+
+async function doSignup() {
+  hideErr();
+  const body = {
+    name: document.getElementById('s-name').value,
+    username: document.getElementById('s-user').value,
+    password: document.getElementById('s-pass').value,
+    avatar: selectedAv,
+  };
+  const res  = await fetch('/signup', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  const data = await res.json();
+  if (data.error) { showErr(data.error); return; }
+  window.location = data.redirect;
+}
+
+// Enter key support
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const tab = document.getElementById('tab-login').classList.contains('active');
+    tab ? doLogin() : doSignup();
+  }
+});
+</script>
+</body>
+</html>

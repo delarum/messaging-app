@@ -1,0 +1,32 @@
+{
+  "alex_vibes": {
+    "username": "alex_vibes",
+    "name": "Alex Carter",
+    "avatar": "\ud83e\udd8a",
+    "password": "1234"
+  },
+  "luna_dev": {
+    "username": "luna_dev",
+    "name": "Luna Park",
+    "avatar": "\ud83c\udf19",
+    "password": "1234"
+  },
+  "cosmic_jay": {
+    "username": "cosmic_jay",
+    "name": "Jay Rivers",
+    "avatar": "\ud83d\ude80",
+    "password": "1234"
+  },
+  "neon_rose": {
+    "username": "neon_rose",
+    "name": "Rose Kim",
+    "avatar": "\ud83c\udf38",
+    "password": "1234"
+  },
+  "thearuuumm": {
+    "username": "thearuuumm",
+    "name": "playfull",
+    "avatar": "\ud83e\udd8b",
+    "password": "arum"
+  }
+}
